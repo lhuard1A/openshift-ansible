@@ -5,7 +5,7 @@
   vars_files:
   - vars.yml
   tasks:
-  - set_fact: cluster_group=meta-env_{{ cluster_id }}
+  - set_fact: cluster_group=tag_env_{{ cluster_id }}
   - add_host:
       name: "{{ item }}"
       groups: oo_hosts_to_terminate
@@ -15,6 +15,6 @@
 
   - name: Terminate instance(s)
     nova_compute:
-      name: "{{ item }}"
+      name: "{{ hostvars[item].os_name }}"
       state: absent
     with_items: groups['oo_hosts_to_terminate']

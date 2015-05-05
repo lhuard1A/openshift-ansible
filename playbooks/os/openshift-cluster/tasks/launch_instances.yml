@@ -36,7 +36,7 @@
     ansible_ssh_host: '{{ item[1].stdout }}'
     ansible_ssh_user: "{{ deployment_vars[deployment_type].ssh_user }}"
     ansible_sudo: "{{ deployment_vars[deployment_type].sudo }}"
-    groups: 'meta-env_{{ cluster }}, meta-host-type_{{ type }}, meta-env-host-type_{{ cluster }}-openshift-{{ type }}'
+    groups: 'tag_env_{{ cluster }}, tag_host-type_{{ type }}, tag_env-host-type_{{ cluster }}-openshift-{{ type }}'
   with_together:
     - instances
     - floating_ip_create_result.results
