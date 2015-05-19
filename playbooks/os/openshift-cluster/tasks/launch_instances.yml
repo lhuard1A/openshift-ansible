@@ -9,7 +9,7 @@
     image_name: '{{ deployment_vars[deployment_type].image.name }}'
     flavor_ram: '{{ openstack_flavor_ram }}'
     key_name: '{{ openstack_ssh_keypair }}'
-    security_groups: '{{ openstack_network_prefix }}-secgrp'
+    security_groups: '{{ openstack_network_prefix }}-{{ k8s_type }}-secgrp'
     nics:
       - net-id: '{{ net_id_result.stdout }}'
     user_data: "{{ lookup('file','files/user-data') }}"

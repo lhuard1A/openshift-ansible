@@ -13,8 +13,28 @@
       ansible_sudo: "{{ deployment_vars[deployment_type].sudo }}"
     with_items: groups[cluster_group] | default([])
 
+- hosts: oo_hosts_to_terminate
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  tasks:
+  - name: Retrieve the floating IPs
+    shell: "neutron floatingip-list | awk '/{{ hostvars[item].ansible_default_ipv4.address }}/ {print $2}'"
+    with_items: groups['oo_hosts_to_terminate']
+    register: floating_ips_to_delete
+
   - name: Terminate instance(s)
     nova_compute:
       name: "{{ hostvars[item].os_name }}"
       state: absent
     with_items: groups['oo_hosts_to_terminate']
+
+  - name: Delete floating IPs
+    command: "neutron floatingip-delete {{ item.stdout }}"
+    with_items: floating_ips_to_delete.results
+
+  - name: Destroy the network
+    command: "heat stack-delete {{ openstack_network_prefix }}-network-stack"
