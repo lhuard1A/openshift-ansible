@@ -13,6 +13,7 @@
       name: "{{ item }}"
       groups: oo_list_hosts
       ansible_ssh_user: "{{ deployment_vars[deployment_type].ssh_user }}"
+      ansible_ssh_host: "{{ item }}"
       ansible_sudo: "{{ deployment_vars[deployment_type].sudo }}"
     with_items: groups[scratch_group] | default([]) | difference(['localhost'])
 
@@ -20,4 +21,4 @@
   hosts: oo_list_hosts
   tasks:
   - debug:
-      msg: 'public:{{ansible_default_ipv4.address}} private:{{ansible_default_ipv4.address}}'
+      msg: 'public:{{ansible_ssh_host}} private:{{ansible_default_ipv4.address}}'
