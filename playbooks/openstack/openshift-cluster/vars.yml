@@ -2,32 +2,39 @@
 openstack_network_prefix: 'openshift-ansible-{{ cluster_id }}'
 openstack_network_cidr: 192.168.{{ 1048576 | random % 256 }}.0/24
 openstack_network_external_net: external
+openstack_floating_ip_pools:
+  - "{{ openstack_network_external_net }}"
 openstack_network_dns:
   - 8.8.8.8
   - 8.8.4.4
 openstack_ssh_keypair: "{{ lookup('env', 'LOGNAME') }}_key"
 openstack_ssh_public_key: "{{ lookup('file','~/.ssh/id_rsa.pub') }}"
-openstack_flavor_ram: 2048
+openstack_flavor:
+  master:
+    ram: 2048
+    id:
+    include:
+  node:
+    ram: 4096
+    id:
+    include:
 
 deployment_vars:
   origin:
     image:
-      url:
       name: centos-70-raw
-      sha256:
+      id:
     ssh_user: openshift
     sudo: yes
   online:
     image:
-      url:
       name:
-      sha256:
+      id:
     ssh_user: root
     sudo: no
   enterprise:
     image:
-      url:
       name: rhel-7.1
-      sha256:
+      id:
     ssh_user: openshift
     sudo: yes
