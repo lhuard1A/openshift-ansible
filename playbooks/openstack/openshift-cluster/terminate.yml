@@ -37,4 +37,4 @@
     with_items: floating_ips_to_delete.results
 
   - name: Destroy the network
-    command: "heat stack-delete {{ openstack_network_prefix }}-network-stack"
+    command: "heat stack-delete {{ openstack_network_prefix }}-stack"

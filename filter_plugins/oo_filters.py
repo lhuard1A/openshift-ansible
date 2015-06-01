@@ -176,6 +176,9 @@ def oo_ec2_volume_definition(data, host_type, docker_ephemeral=False):
         return [root_vol, docker_vol]
     return [root_vol]
 
+def oo_split(string, separator=','):
+    return string.split(separator)
+
 # disabling pylint checks for too-few-public-methods and no-self-use since we
 # need to expose a FilterModule object that has a filters method that returns
 # a mapping of filter names to methods.
@@ -192,5 +195,6 @@ class FilterModule(object):
             "oo_pdb": oo_pdb,
             "oo_prepend_strings_in_list": oo_prepend_strings_in_list,
             "oo_ami_selector": oo_ami_selector,
-            "oo_ec2_volume_definition": oo_ec2_volume_definition
+            "oo_ec2_volume_definition": oo_ec2_volume_definition,
+            "oo_split": oo_split
         }

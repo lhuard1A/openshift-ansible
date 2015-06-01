@@ -1,8 +1,3 @@
----
-# TODO: need to figure out a plan for setting hostname, currently the default
-# is localhost, so no hostname value (or public_hostname) value is getting
-# assigned
-
 - name: Populate oo_masters_to_config host group
   hosts: localhost
   gather_facts: no
