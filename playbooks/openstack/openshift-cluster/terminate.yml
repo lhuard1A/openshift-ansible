@@ -23,18 +23,21 @@
   tasks:
   - name: Retrieve the floating IPs
     shell: "neutron floatingip-list | awk '/{{ hostvars[item].ansible_default_ipv4.address }}/ {print $2}'"
-    with_items: groups['oo_hosts_to_terminate']
+    with_items: groups['oo_hosts_to_terminate'] | default([])
     register: floating_ips_to_delete
 
   - name: Terminate instance(s)
     nova_compute:
       name: "{{ hostvars[item].os_name }}"
       state: absent
-    with_items: groups['oo_hosts_to_terminate']
+    with_items: groups['oo_hosts_to_terminate'] | default([])
 
   - name: Delete floating IPs
     command: "neutron floatingip-delete {{ item.stdout }}"
-    with_items: floating_ips_to_delete.results
+    with_items: floating_ips_to_delete.results | default([])
 
   - name: Destroy the network
     command: "heat stack-delete {{ openstack_network_prefix }}-stack"
+    register: stack_delete_result
+    changed_when: stack_delete_result.rc == 0
+    failed_when: stack_delete_result.rc != 0 and 'could not be found' not in stack_delete_result.stdout
