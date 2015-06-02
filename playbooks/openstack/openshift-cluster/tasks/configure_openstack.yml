@@ -16,9 +16,10 @@
 - name: Wait for infra readiness
   shell: 'heat stack-show {{ openstack_network_prefix }}-stack | awk ''$2 == "stack_status" {print $4}'''
   register: stack_show_status_result
-  until: stack_show_status_result.stdout in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']
+  until: stack_show_status_result.stdout not in ['CREATE_IN_PROGRESS', 'UPDATE_IN_PROGRESS']
   retries: 30
   delay: 1
+  failed_when: stack_show_status_result.stdout not in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']
 
 - name: Create ssh keypair
   nova_keypair:
