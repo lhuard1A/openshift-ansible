@@ -8,7 +8,7 @@
   tasks:
   - fail:
       msg: "Deployment type not supported for OpenStack provider yet"
-    when: deployment_type in ['online', 'enterprise']
+    when: deployment_type == 'online'
 
   - include: tasks/configure_openstack.yml
 
