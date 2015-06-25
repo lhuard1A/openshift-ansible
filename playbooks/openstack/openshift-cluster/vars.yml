@@ -1,5 +1,5 @@
 ---
-openstack_infra_heat_stack:     "{{ opt_infra_heat_stack  | default('files/heat_stack.yml') }}"
+openstack_infra_heat_stack:     "{{ opt_infra_heat_stack  | default('files/heat_stack.yaml') }}"
 openstack_network_prefix:       "{{ opt_network_prefix    | default('openshift-ansible-'+cluster_id) }}"
 openstack_network_cidr:         "{{ opt_net_cidr          | default('192.168.' + ( ( 1048576 | random % 256 ) | string() ) + '.0/24') }}"
 openstack_network_external_net: "{{ opt_external_net      | default('external') }}"
@@ -9,31 +9,19 @@ openstack_ssh_keypair:          "{{ opt_keypair           | default(lookup('env'
 openstack_ssh_public_key:       "{{ lookup('file', opt_public_key | default('~/.ssh/id_rsa.pub')) }}"
 openstack_ssh_access_from:      "{{ opt_ssh_from          | default('0.0.0.0/0') }}"
 openstack_flavor:
-  master:
-    ram:     "{{ opt_master_flavor_ram     | default(2048) }}"
-    id:      "{{ opt_master_flavor_id      | default() }}"
-    include: "{{ opt_master_flavor_include | default() }}"
-  node:
-    ram:     "{{ opt_node_flavor_ram     | default(4096) }}"
-    id:      "{{ opt_node_flavor_id      | default() }}"
-    include: "{{ opt_node_flavor_include | default() }}"
+  master: "{{ opt_master_flavor | default('m1.small') }}"
+  node:   "{{ opt_node_flavor   | default('m1.medium') }}"
 
 deployment_vars:
   origin:
-    image:
-      name: "{{ opt_image_name | default('centos-70-raw') }}"
-      id:
+    image: "{{ opt_image | default('centos-70-raw') }}"
     ssh_user: openshift
     sudo: yes
   online:
     image:
-      name:
-      id:
     ssh_user: root
     sudo: no
   enterprise:
-    image:
-      name: "{{ opt_image_name | default('centos-70-raw') }}"
-      id:
+    image: "{{ opt_image | default('rhel-guest-image-7.1-20150224.0.x86_64') }}"
     ssh_user: openshift
     sudo: yes
