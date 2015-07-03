@@ -1,19 +1,5 @@
 ---
-- name: Get the OpenShift Enterprise High Touch Beta pool ID
-  shell: "subscription-manager list --available | awk -F : \
-         'BEGIN {s=0}
-          /Subscription Name: *OpenShift Enterprise High Touch Beta/ {s=1}
-          s==1 && /Pool ID:/ {print $2; s=2}'"
-  register: high_touch_beta_pool_id
-  changed_when: False
-
-- name: Enable OpenShift Enterprise High Touch Beta repos
-  command: "subscription-manager attach --pool={{ high_touch_beta_pool_id.stdout }}"
-  when: high_touch_beta_pool_id.stdout != ''
-
 - name: Enable RHEL repositories
   command: subscription-manager repos \
                --enable="rhel-7-server-rpms" \
-               --enable="rhel-7-server-extras-rpms" \
-               --enable="rhel-7-server-optional-rpms" \
-               --enable="rhel-server-7-ose-beta-rpms"
+               --enable="rhel-7-server-ose-3.0-rpms"

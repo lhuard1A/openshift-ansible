@@ -23,7 +23,6 @@
   redhat_subscription:
     username: "{{ rhel_subscription_user }}"
     password: "{{ rhel_subscription_pass }}"
-    # pool: "^OpenShift Enterprise High Touch Beta$"
     autosubscribe: yes
 
 - include: enterprise.yml
