@@ -1,2 +1,1 @@
-#localhost ansible_sudo=no ansible_python_interpreter=/usr/bin/python2 connection=local
-localhost ansible_sudo=no ansible_python_interpreter=/home/lenaic/doc/prog/RedHat/openshift-ansible/py-venv/bin/python2 connection=local
+localhost ansible_sudo=no ansible_python_interpreter=/usr/bin/python2 connection=local

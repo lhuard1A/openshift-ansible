@@ -6,7 +6,7 @@
   - role: rhel_subscribe
     when: deployment_type == "enterprise" and
           ansible_distribution == "RedHat" and
-          lookup('env', 'rhel_skip_subscription') | default(rhsub_skip, True) |
+          lookup('oo_option', 'rhel_skip_subscription') |
             default('no', True) | lower in ['no', 'false']
   - openshift_repos
   - os_update_latest
