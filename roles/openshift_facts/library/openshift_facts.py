@@ -298,10 +298,10 @@ def set_registry_url_if_unset(facts):
             if 'registry_url' not in facts[role]:
                 registry_url = "openshift/origin-${component}:${version}"
                 if deployment_type == 'enterprise':
-                    registry_url = "openshift3_beta/ose-${component}:${version}"
+                    registry_url = "openshift3/ose-${component}:${version}"
                 elif deployment_type == 'online':
                     registry_url = ("docker-registry.ops.rhcloud.com/"
-                                    "openshift3_beta/ose-${component}:${version}")
+                                    "openshift3/ose-${component}:${version}")
                 facts[role]['registry_url'] = registry_url
 
     return facts
@@ -450,7 +450,9 @@ def get_current_config(facts):
 
         # TODO: parse the /etc/sysconfig/openshift-{master,node} config to
         # determine the location of files.
-
+        # TODO: I suspect this isn't working right now, but it doesn't prevent
+        # anything from working properly as far as I can tell, perhaps because
+        # we override the kubeconfig path everywhere we use it?
         # Query kubeconfig settings
         kubeconfig_dir = '/var/lib/openshift/openshift.local.certificates'
         if role == 'node':
@@ -485,7 +487,7 @@ def get_current_config(facts):
                 current_config['kubeconfig'] = config
 
             # override pylint broad-except warning, since we do not want
-            # to bubble up any exceptions if openshift ex config view
+            # to bubble up any exceptions if oc config view
             # fails
             # pylint: disable=broad-except
             except Exception:

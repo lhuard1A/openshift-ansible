@@ -1,6 +1,6 @@
 // vim: ft=asciidoc
 
-= Openshift-Ansible Best Practices Guide
+= openshift-ansible Best Practices Guide
 
 The purpose of this guide is to describe the preferred patterns and best practices used in this repository (both in ansible and python).
 
@@ -26,6 +26,32 @@ The tooling is flexible enough that exceptions can be made so that the tool the 
 
 
 == Python
+
+=== Method Signatures
+
+'''
+[cols="2v,v"]
+|===
+| **Rule**
+| When adding a new paramemter to an existing method, a default value SHOULD be used
+|===
+The purpose of this rule is to make it so that method signatures are backwards compatible.
+
+If this rule isn't followed, it will be necessary for the person who changed the method to search out all callers and make sure that they're able to use the new method signature.
+
+Example:
+.Before:
+[source,python]
+----
+def add_person(first_name, last_name):
+----
+
+.After:
+[source,python]
+----
+def add_person(first_name, last_name, age=None):
+----
+
 
 === PyLint
 http://www.pylint.org/[PyLint] is used in an attempt to keep the python code as clean and as managable as possible. The build bot runs each pull request through PyLint and any warnings or errors cause the build bot to fail the pull request.
@@ -98,6 +124,58 @@ YAML is a superset of JSON, which means that Ansible allows JSON syntax to be in
 * Ansible static inventory files are INI files. To pass in variables for specific hosts, Ansible allows for these variables to be put inside of the static inventory files. These variables can be in JSON format, but can't be in YAML format. This is an acceptable use of JSON, as YAML is not allowed in this case.
 
 Every effort should be made to keep our Ansible YAML files in pure YAML.
+
+'''
+[cols="2v,v"]
+|===
+| **Rule**
+| Parameters to Ansible Modules SHOULD use the Yaml dictionary format when 3 or more parameters are being passed
+|===
+
+When a module has several parameters that are being passed in, it's hard to see exactly what value each parameter is getting. It is preferred to use the Ansible Yaml syntax to pass in parameters so that it's more clear what values are being passed for each paramemter.
+
+.Bad:
+[source,yaml]
+----
+- file: src=/file/to/link/to dest=/path/to/symlink owner=foo group=foo state=link
+----
+
+.Good:
+[source,yaml]
+----
+- file:
+    src: /file/to/link/to
+    dest: /path/to/symlink
+    owner: foo
+    group: foo
+    state: link
+----
+
+
+'''
+[cols="2v,v"]
+|===
+| **Rule**
+| Parameters to Ansible Modules SHOULD use the Yaml dictionary format when the line length exceeds 120 characters
+|===
+
+Lines that are long quickly become a wall of text that isn't easily parsable. It is preferred to use the Ansible Yaml syntax to pass in parameters so that it's more clear what values are being passed for each paramemter.
+
+.Bad:
+[source,yaml]
+----
+- get_url: url=http://example.com/path/file.conf dest=/etc/foo.conf sha256sum=b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c
+----
+
+.Good:
+[source,yaml]
+----
+- get_url:
+    url: http://example.com/path/file.conf
+    dest: /etc/foo.conf
+    sha256sum: b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c
+----
+
 
 === Defensive Programming
 
