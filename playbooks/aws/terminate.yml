@@ -9,7 +9,10 @@
 
 - name: Gather dynamic inventory variables for hosts to terminate
   hosts: oo_hosts_to_terminate
-  gather_facts: no
+  roles:
+  - role: rhel_unsubscribe
+    when: deployment_type == "enterprise" and
+          ansible_distribution == "RedHat"
 
 - name: Terminate instances
   hosts: localhost
