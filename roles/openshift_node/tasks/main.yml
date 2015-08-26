@@ -6,9 +6,9 @@
 - fail:
     msg: This role requres that osn_cluster_dns_ip is set
   when: osn_cluster_dns_ip is not defined or not osn_cluster_dns_ip
-- fail:
-    msg: "SELinux is disabled, This deployment type requires that SELinux is enabled."
-  when: (not ansible_selinux or ansible_selinux.status != 'enabled') and deployment_type in ['enterprise', 'online']
+# - fail:
+#     msg: "SELinux is disabled, This deployment type requires that SELinux is enabled."
+#   when: (not ansible_selinux or ansible_selinux.status != 'enabled') and deployment_type in ['enterprise', 'online']
 
 - name: Install OpenShift Node package
   yum: pkg=openshift-node state=present
@@ -112,6 +112,12 @@
         lookup('oo_option', 'docker_insecure_registries') != ''
   notify:
     - restart docker
+
+- name: Use OverlayFS docker backend storage
+  lineinfile:
+    dest: /etc/sysconfig/docker-storage
+    regexp: '^DOCKER_STORAGE_OPTIONS=.*'
+    line: "DOCKER_STORAGE_OPTIONS=-s overlay"
 
 - name: Allow NFS access for VMs
   seboolean: name=virt_use_nfs state=yes persistent=yes
