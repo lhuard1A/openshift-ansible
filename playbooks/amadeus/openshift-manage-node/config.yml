@@ -1,0 +1,77 @@
+- name: Create kubeconfig file to manage-node
+  hosts: oo_first_master
+  vars:
+    openshift_master_config_dir: "{{ openshift.common.config_base }}/master"
+
+  tasks:
+  - name: test if service accounts exists
+    command: >
+        {{ openshift.common.client_binary }} get sa manage-node -n default
+    failed_when: false
+    changed_when: false
+    register: serviceaccount
+
+  - name: create the service account
+    shell: |
+         echo {{ lookup('file', './files/managenode-sa.yml')
+           | from_yaml | to_json | quote }} | {{ openshift.common.client_binary }} -n default create -f -
+    when: serviceaccount.rc != 0
+    register: sacreated
+  
+  - name: add role system:master to new service account
+    command: >
+        {{ openshift.common.admin_binary }} policy add-cluster-role-to-user system:master
+        system:serviceaccount:default:manage-node
+    when: sacreated | changed
+
+  - name: get api token for manage-node service account
+    shell: >
+         {{ openshift.common.client_binary }} describe secret `{{ openshift.common.client_binary }} get secret 
+         | grep manage-node-token | head -1 | awk '{print $1}'` | grep token: | sed 's/token:\t//g'
+    register: token
+
+  - name: set cluster for kubeconfig file
+    command: >
+      {{ openshift.common.client_binary }} config set-cluster
+      --certificate-authority={{ openshift_master_config_dir }}/ca.crt
+      --embed-certs=true --server={{ openshift.master.loopback_api_url }}
+      {{ openshift.master.loopback_cluster_name }}
+      --config=/tmp/system:serviceaccount:default:manage-node.kubeconfig
+   
+  - name: set manage-node context
+    command: >
+      {{ openshift.common.client_binary }} config set-context
+      --cluster={{ openshift.master.loopback_cluster_name }}
+      --namespace=default --user=system:serviceaccount:default:manage-node 
+      "default/{{ openshift.master.loopback_cluster_name }}/system:serviceaccount:default:manage-node"
+      --config=/tmp/system:serviceaccount:default:manage-node.kubeconfig
+ 
+  - name: set credentials for sa manage-node
+    command: >
+      {{ openshift.common.client_binary }} config set-credentials
+      system:serviceaccount:default:manage-node --token={{ token.stdout }}
+      --config=/tmp/system:serviceaccount:default:manage-node.kubeconfig
+      
+  - name: use manage-node context 
+    command: >
+      {{ openshift.common.client_binary }} config use-context
+      "default/{{ openshift.master.loopback_cluster_name }}/system:serviceaccount:default:manage-node"
+      --config=/tmp/system:serviceaccount:default:manage-node.kubeconfig
+
+  - name: Retrieve the kubeconfig file
+    fetch:
+      src:  "/tmp/system:serviceaccount:default:manage-node.kubeconfig"
+      dest: "/tmp/system:serviceaccount:default:manage-node.kubeconfig"
+      flat: yes
+      fail_on_missing: yes
+      validate_checksum: yes
+
+- name: Copy kubeconfig file on nodes
+  hosts: oo_nodes_to_config
+  tasks:
+  - name: copy kubeconfig from tmp 
+    copy:
+      src:  "/tmp/system:serviceaccount:default:manage-node.kubeconfig"
+      dest: "/tmp/system:serviceaccount:default:manage-node.kubeconfig"
+      mode: 0644
+
