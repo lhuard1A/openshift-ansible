@@ -1,0 +1,30 @@
+environments:
+  - [linux, python-2.7]
+
+env:
+  # TODO: Remove this ugly hack once SFB-634 is implemented
+  - secure: "lqMHE76R7LGT0/a37IJ6xM4X+j45MlDHyM0JNYfzm97P2d9cDy9O9BuazTTP+68n9BdOpcYMswOyTrIoc2lIajWntNeMzuomnp04/6hPhyvoZcm9bQ5Ax931oJ1UB58s0ybJvbzk3zVNNSJOYg2TJ72TC+FOE17KmisjchnhK0g="
+
+build:
+  - |
+    set -eo pipefail
+    virtualenv .venv
+    source .venv/bin/activate
+    pip install ansible
+    ansible-playbook --syntax-check playbooks/*/openshift-cluster/{launch,config,terminate}.yml
+
+publish:
+  # TODO: Remove this ugly hack once SFB-634 is implemented
+  - |
+    set -euo pipefail
+    echo "${git_credentials}" > .git-credentials
+    git config credential.helper 'store --file=.git-credentials'
+    git fetch --tags --no-recurse-submodules stash
+    rm .git-credentials
+    git config --local --remove-section credential
+  - mkdir -p sf/publish/acs-project/deployment_tools/openshift-ansible
+  - |
+    set -euo pipefail
+    VERSION=$(git describe --tags --always --dirty --match "[[:digit:]][[:digit:]][[:digit:]][[:digit:]].[[:digit:]][[:digit:]].[[:digit:]][[:digit:]]")
+    echo "sf.version=$VERSION" > sf-build.properties
+    git archive -o sf/publish/acs-project/deployment_tools/openshift-ansible/openshift-ansible-$VERSION.tar.xz HEAD
