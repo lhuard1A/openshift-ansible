@@ -27,4 +27,4 @@ publish:
     set -euo pipefail
     VERSION=$(git describe --tags --always --dirty --match "[[:digit:]][[:digit:]][[:digit:]][[:digit:]].[[:digit:]][[:digit:]].[[:digit:]][[:digit:]]")
     echo "sf.version=$VERSION" > sf-build.properties
-    git archive -o sf/publish/acs-project/deployment_tools/openshift-ansible/openshift-ansible-$VERSION.tar.xz HEAD
+    git archive --format=tar.gz -o sf/publish/acs-project/deployment_tools/openshift-ansible/openshift-ansible-$VERSION.tar.gz HEAD
