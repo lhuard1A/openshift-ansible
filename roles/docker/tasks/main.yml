@@ -46,16 +46,6 @@
   action: "{{ ansible_pkg_mgr }} name=docker{{ '-' + docker_version if docker_version is defined else '' }} state=present"
   when: not openshift.common.is_atomic | bool
 
-- name: Start the Docker service
-  service:
-    name: docker
-    enabled: yes
-    state: started
-  register: start_result
-
-- set_fact:
-    docker_service_status_changed: start_result | changed
-
 # PTR13123356 - override rpm called by docker ### START ###
 - name: Create directory for rpm override
   file:
@@ -140,5 +130,16 @@
   when: docker_check.stat.isreg is defined and docker_check.stat.isreg
   notify:
     - restart docker
+
+- name: Start the Docker service
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  register: start_result
+
+- set_fact:
+    docker_service_status_changed: start_result | changed
 
 - meta: flush_handlers
