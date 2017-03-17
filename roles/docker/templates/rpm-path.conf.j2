@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+
+[Service]
+ExecStartPost=/usr/bin/nsenter -t $MAINPID -m /bin/mount --bind /opt/docker-rpm-hack-PTR13123356/rpm /usr/bin/rpm

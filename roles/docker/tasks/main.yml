@@ -56,6 +56,35 @@
 - set_fact:
     docker_service_status_changed: start_result | changed
 
+# PTR13123356 - override rpm called by docker ### START ###
+- name: Create directory for rpm override
+  file:
+    path: "/opt/docker-rpm-hack-PTR13123356"
+    state: directory
+
+- name: Install rpm override for Docker
+  copy:
+    dest: "/opt/docker-rpm-hack-PTR13123356/rpm"
+    src: "rpm"
+    mode: 0755
+
+- name: Ensure docker.service.d directory exists
+  file:
+    path: "/etc/systemd/system/docker.service.d"
+    state: directory
+
+- name: Configure Docker service unit file to bind mount a replacement rpm executable
+  template:
+    dest: "/etc/systemd/system/docker.service.d/rpm-path.conf"
+    src: rpm-path.conf.j2
+  notify: restart docker
+  register: docker_patch4rpm
+
+- set_fact:
+    docker_service_status_changed: true
+  when: docker_patch4rpm | changed
+# PTR13123356 - override rpm called by docker ### END ###
+
 - include: udev_workaround.yml
   when: docker_udev_workaround | default(False) | bool
 
