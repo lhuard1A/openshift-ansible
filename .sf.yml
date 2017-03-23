@@ -3,7 +3,7 @@ environments:
 
 env:
   # TODO: Remove this ugly hack once SFB-634 is implemented
-  - secure: "lqMHE76R7LGT0/a37IJ6xM4X+j45MlDHyM0JNYfzm97P2d9cDy9O9BuazTTP+68n9BdOpcYMswOyTrIoc2lIajWntNeMzuomnp04/6hPhyvoZcm9bQ5Ax931oJ1UB58s0ybJvbzk3zVNNSJOYg2TJ72TC+FOE17KmisjchnhK0g="
+  - secure: "bpdz9FuOf3SLgE/GN/hB5GY2ZZzAZDSTdRzwwgF86VxHKWovssAnVezzyo0TsEfT4rr9+o/2u62V35x3oqd02xxuiXM9XG0/PF7JJzKmbe6GJCbc9HB36fZsrKsHETTUmazlbeF9bESys1/z8uc/4tSiaerth2e5MkNs87xQLF8="
 
 build:
   - |
