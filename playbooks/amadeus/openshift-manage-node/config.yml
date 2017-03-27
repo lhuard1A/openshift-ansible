@@ -4,21 +4,21 @@
     openshift_master_config_dir: "{{ openshift.common.config_base }}/master"
 
   tasks:
-  - name: test if service accounts exists
+  - name: test if acs-manage-node service account exists
     command: >
         {{ openshift.common.client_binary }} get sa acs-manage-node -n default
     failed_when: false
     changed_when: false
     register: serviceaccount
 
-  - name: create the service account
+  - name: create acs-manage-node service account
     shell: |
          echo {{ lookup('file', './files/managenode-sa.yml')
            | from_yaml | to_json | quote }} | {{ openshift.common.client_binary }} -n default create -f -
     when: serviceaccount.rc != 0
     register: sacreated
   
-  - name: add role system:master to new service account
+  - name: add role system:master to acs-manage-node service account
     command: >
         {{ openshift.common.admin_binary }} policy add-cluster-role-to-user system:master
         system:serviceaccount:default:acs-manage-node
@@ -27,7 +27,7 @@
   - name: get api token for acs-manage-node service account
     shell: >
          {{ openshift.common.client_binary }} describe secret `{{ openshift.common.client_binary }} get secret 
-         | grep acs-manage-node-token | head -1 | awk '{print $1}'` | grep token: | sed 's/token:\t//g'
+         | grep acs-manage-node-token | head -1 | awk '{print $1}'` | grep token: | sed 's/token:\t\t//g'
     register: token
 
   - name: set cluster for kubeconfig file
@@ -42,14 +42,15 @@
     command: >
       {{ openshift.common.client_binary }} config set-context
       --cluster={{ openshift.master.loopback_cluster_name }}
-      --namespace=default --user=system:serviceaccount:default:acs-manage-node 
+      --namespace=default --user=system:serviceaccount:default:acs-manage-node/{{ openshift.master.loopback_cluster_name }}
       "default/{{ openshift.master.loopback_cluster_name }}/system:serviceaccount:default:acs-manage-node"
       --config=/tmp/system:serviceaccount:default:acs-manage-node.kubeconfig
  
   - name: set credentials for sa acs-manage-node
     command: >
       {{ openshift.common.client_binary }} config set-credentials
-      system:serviceaccount:default:acs-manage-node --token={{ token.stdout }}
+      system:serviceaccount:default:acs-manage-node/{{ openshift.master.loopback_cluster_name }}
+      --token={{ token.stdout }}
       --config=/tmp/system:serviceaccount:default:acs-manage-node.kubeconfig
       
   - name: use acs-manage-node context 
