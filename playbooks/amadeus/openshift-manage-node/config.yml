@@ -74,5 +74,5 @@
     copy:
       src:  "/tmp/system:serviceaccount:default:acs-manage-node.kubeconfig"
       dest: "/tmp/system:serviceaccount:default:acs-manage-node.kubeconfig"
-      mode: 0644
+      mode: 0600
 
