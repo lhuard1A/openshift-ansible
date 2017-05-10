@@ -1,8 +1,8 @@
 ---
 # TODO: allow for overriding default ports where possible
-- fail:
-    msg: "SELinux is disabled, This deployment type requires that SELinux is enabled."
-  when: (not ansible_selinux or ansible_selinux.status != 'enabled') and deployment_type in ['enterprise', 'online', 'atomic-enterprise', 'openshift-enterprise']
+# - fail:
+#     msg: "SELinux is disabled, This deployment type requires that SELinux is enabled."
+#   when: (not ansible_selinux or ansible_selinux.status != 'enabled') and deployment_type in ['enterprise', 'online', 'atomic-enterprise', 'openshift-enterprise']
 
 - name: Set node facts
   openshift_facts:
@@ -156,6 +156,12 @@
 - name: Start and enable node dep
   service: name={{ openshift.common.service_type }}-node-dep enabled=yes state=started
   when: openshift.common.is_containerized | bool
+
+- name: Use OverlayFS docker backend storage
+  lineinfile:
+    dest: /etc/sysconfig/docker-storage
+    regexp: '^DOCKER_STORAGE_OPTIONS=.*'
+    line: "DOCKER_STORAGE_OPTIONS=-s overlay"
 
 - name: Start and enable node
   service: name={{ openshift.common.service_type }}-node enabled=yes state=started

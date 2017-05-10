@@ -1,9 +1,10 @@
 ---
 
 - name: restart docker
-  service:
+  systemd:
     name: docker
     state: restarted
+    daemon-reload: yes
   when: not docker_service_status_changed | default(false) | bool
 
 - name: restart udev

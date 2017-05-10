@@ -20,3 +20,5 @@
       (osm_use_cockpit | bool or osm_use_cockpit is undefined ) and ( openshift.common.deployment_subtype != 'registry' )
   - role: flannel_register
     when: openshift.common.use_flannel | bool
+
+- include: ../../amadeus/openshift-manage-node/config.yml
